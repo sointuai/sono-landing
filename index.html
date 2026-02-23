@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sono - AI Service Advisor for Automotive Teams</title>
+  <meta name="description" content="Sono answers every inbound call for automotive service teams, captures key job details, and helps convert missed calls into booked work.">
+  <meta property="og:title" content="Sono - AI Service Advisor for Automotive Teams">
+  <meta property="og:description" content="Automated Customer Service for Pioneering Car Dealerships and Auto Repair Shops.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="img/img-003.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Manrope', 'sans-serif'],
+            tachyon: ['Orbitron', 'sans-serif']
+          },
+          colors: {
+            sono: {
+              orange: '#FF3F02',
+              orangeDark: '#E33600',
+              black: '#0E0E0E',
+              darkGrey: '#8C8C8C',
+              lightGrey: '#D9D9D9',
+              white: '#FFFFFF',
+              green: '#24CB71',
+              red: '#DC220D',
+              yellow: '#FEB708'
+            }
+          },
+          boxShadow: {
+            surface: '0 14px 40px rgba(14, 14, 14, 0.10)',
+            soft: '0 10px 24px rgba(14, 14, 14, 0.08)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --sono-orange: #FF3F02;
+      --sono-black: #0E0E0E;
+      --sono-dark-grey: #8C8C8C;
+      --sono-light-grey: #D9D9D9;
+      --sono-white: #FFFFFF;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      color: var(--sono-black);
+      background: #fff;
+    }
+
+    /* --- Pipe surfaces --- */
+    .pipe-surface {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .pipe-surface svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* --- Cards --- */
+    .rail-card {
+      transition: transform 0.24s ease, box-shadow 0.24s ease;
+    }
+
+    .rail-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 30px rgba(14, 14, 14, 0.14);
+    }
+
+    .tile {
+      transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease, background-color 0.28s ease;
+    }
+
+    .tile:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(14, 14, 14, 0.10);
+      border-color: rgba(255, 63, 2, 0.4);
+      background-color: #fff;
+    }
+
+    .tile:hover .tile-icon {
+      color: var(--sono-orange);
+    }
+
+    /* --- Layout --- */
+    /* quote-strip preserved for potential re-use */
+
+    /* --- Reveal animations --- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-24px);
+      transition: opacity 0.6s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.96);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .reveal.show, .reveal-left.show, .reveal-scale.show {
+      opacity: 1;
+      transform: translateY(0) translateX(0) scale(1);
+    }
+
+    .d1 { transition-delay: 0.08s; }
+    .d2 { transition-delay: 0.16s; }
+    .d3 { transition-delay: 0.24s; }
+    .d4 { transition-delay: 0.32s; }
+
+    /* --- Form focus states --- */
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--sono-orange) !important;
+      box-shadow: 0 0 0 3px rgba(255, 63, 2, 0.10);
+      background-color: #fffaf8;
+    }
+
+    /* --- FAQ animation --- */
+    details summary {
+      list-style: none;
+    }
+
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details summary::after {
+      content: '';
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid var(--sono-black);
+      border-bottom: 2px solid var(--sono-black);
+      transform: rotate(45deg);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: absolute;
+      right: 0;
+      top: 50%;
+      margin-top: -7px;
+    }
+
+    details.faq-open summary::after {
+      transform: rotate(-135deg);
+      margin-top: -3px;
+    }
+
+    details .faq-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+    }
+
+    details.faq-open .faq-body {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+
+    details .faq-body > div {
+      overflow: hidden;
+    }
+
+    /* --- Subtle grain texture --- */
+    .grain::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 180px 180px;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+  <header class="relative z-20 border-b border-sono-lightGrey/70 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+      <div class="h-20 flex items-center justify-between">
+        <a href="#home" class="inline-flex items-center gap-2" aria-label="Sono home">
+          <img src="img/sono-logo-solid.png" alt="sono logo" class="h-5 w-auto object-contain">
+        </a>
+
+        <button id="menu-btn" class="md:hidden rounded-xl border border-sono-lightGrey p-2" aria-label="Toggle menu" aria-expanded="false">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+
+        <nav class="hidden md:flex items-center gap-7 text-sm font-semibold tracking-wide text-sono-black">
+          <a href="#home" class="hover:text-sono-orange transition-colors">Home</a>
+          <a href="#platform" class="hover:text-sono-orange transition-colors">Platform</a>
+          <a href="#faq" class="hover:text-sono-orange transition-colors">Frequently Asked Questions</a>
+          <a href="#contact" class="hover:text-sono-orange transition-colors">Contact</a>
+          <a href="#contact" class="rounded-xl bg-sono-orange px-5 py-2.5 text-white hover:bg-sono-orangeDark transition-colors">Get started with Sono</a>
+        </nav>
+      </div>
+
+      <nav id="mobile-menu" class="hidden md:hidden pb-5">
+        <div class="grid gap-2 text-sm font-semibold">
+          <a href="#home" class="rounded-lg px-3 py-2 hover:bg-gray-100">Home</a>
+          <a href="#platform" class="rounded-lg px-3 py-2 hover:bg-gray-100">Platform</a>
+          <a href="#faq" class="rounded-lg px-3 py-2 hover:bg-gray-100">Frequently Asked Questions</a>
+          <a href="#contact" class="rounded-lg px-3 py-2 hover:bg-gray-100">Contact</a>
+          <a href="#contact" class="rounded-lg bg-sono-orange px-3 py-2 text-white text-center">Get started with Sono</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="home">
+    <!-- HERO: Dark image background with brand imagery -->
+    <section class="relative overflow-hidden border-b border-white/10">
+      <div class="absolute inset-0">
+        <img src="brandbook-images/image-93-3200x1688.png" alt="" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-r from-[#0E0E0E]/92 via-[#0E0E0E]/78 to-[#0E0E0E]/50"></div>
+      </div>
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-20 lg:py-28">
+        <div class="grid lg:grid-cols-12 gap-12 items-center">
+          <div class="lg:col-span-7 reveal show">
+            <p class="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold tracking-[0.12em] uppercase text-gray-300">Top Voice AI for Automotive</p>
+            <h1 class="mt-5 text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold leading-[1.06] max-w-2xl text-white">Automated Customer Service for Pioneering Dealerships</h1>
+            <p class="mt-6 text-lg text-gray-300 max-w-xl leading-relaxed">Sono answers every inbound call, books maintenance or collision jobs, handles frontline support, and forwards callers whenever a human needs to step in.</p>
+            <div class="mt-8 flex flex-wrap gap-4 d1 reveal show">
+              <a href="#contact" class="rounded-xl bg-sono-orange px-6 py-3.5 font-bold text-white hover:bg-sono-orangeDark transition-colors">Book a Demo</a>
+              <a href="#platform" class="rounded-xl border border-white/25 bg-white/10 px-6 py-3.5 font-bold text-white hover:bg-white/20 transition-colors">Learn More</a>
+            </div>
+          </div>
+
+          <aside class="lg:col-span-5 reveal-scale show d1">
+            <div class="rounded-2xl border border-white/15 bg-white p-6 shadow-surface">
+              <p class="text-sm font-semibold text-sono-darkGrey uppercase tracking-[0.10em]">What Sono handles</p>
+              <ul class="mt-4 space-y-3">
+                <li class="flex items-start gap-3">
+                  <span class="mt-1 w-1.5 h-1.5 rounded-full bg-sono-orange shrink-0"></span>
+                  <span class="font-medium">Answer every call no matter the volume</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="mt-1 w-1.5 h-1.5 rounded-full bg-sono-orange shrink-0"></span>
+                  <span class="font-medium">Automate appointment bookings</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="mt-1 w-1.5 h-1.5 rounded-full bg-sono-orange shrink-0"></span>
+                  <span class="font-medium">Route calls to the right team</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="mt-1 w-1.5 h-1.5 rounded-full bg-sono-orange shrink-0"></span>
+                  <span class="font-medium">Frontline customer service 24/7</span>
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- Metrics strip: Large Tachyon numbers like brandbook applications -->
+    <section class="relative bg-white border-b border-sono-lightGrey/70 overflow-hidden">
+      <div class="pipe-surface opacity-100">
+        <svg viewBox="0 0 1600 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <filter id="spark-t" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Route 1: Down → 90° right → right → 90° down → down -->
+            <path id="trust-p1" data-pipe="7" d="M 350,-20 V 160 A 45,45 0 0,0 395,205 H 780 A 45,45 0 0,1 825,250 V 540" stroke="#D9D9D9" stroke-width="7"/>
+            <path d="M 350,-20 V 160 A 45,45 0 0,0 395,205 H 780 A 45,45 0 0,1 825,250 V 540" stroke="#fff" stroke-width="4.5"/>
+            <!-- Route 2: Straight vertical (fast) -->
+            <path id="trust-p2" data-pipe="3" d="M 1200,-20 V 540" stroke="#D9D9D9" stroke-width="7"/>
+            <path d="M 1200,-20 V 540" stroke="#fff" stroke-width="4.5"/>
+          </g>
+        </svg>
+      </div>
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-16">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-16">
+          <div class="text-center reveal show">
+            <dd class="text-5xl sm:text-6xl lg:text-7xl font-tachyon font-bold text-sono-black tracking-wide leading-none">+100</dd>
+            <dt class="mt-3 text-sm font-semibold text-sono-darkGrey uppercase tracking-[0.10em]">Monthly bookings</dt>
+          </div>
+          <div class="text-center reveal show d1">
+            <dd class="text-5xl sm:text-6xl lg:text-7xl font-tachyon font-bold text-sono-black tracking-wide leading-none">+40h</dd>
+            <dt class="mt-3 text-sm font-semibold text-sono-darkGrey uppercase tracking-[0.10em]">Hours saved weekly</dt>
+          </div>
+          <div class="text-center reveal show d2">
+            <dd class="text-5xl sm:text-6xl lg:text-7xl font-tachyon font-bold text-sono-black tracking-wide leading-none">0</dd>
+            <dt class="mt-3 text-sm font-semibold text-sono-darkGrey uppercase tracking-[0.10em]">Lost bookings</dt>
+          </div>
+        </div>
+        <div class="mt-12 max-w-3xl mx-auto text-center reveal show d2">
+          <p class="text-2xl sm:text-3xl font-extrabold leading-snug">"Reliable. Consistent. Always answering."</p>
+          <p class="mt-3 text-sono-darkGrey">Replace clunky number-based menus with natural call handling that captures details and moves work forward.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust strip -->
+    <section class="border-b border-sono-lightGrey/70 py-10 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+        <p class="text-center text-xs sm:text-sm font-semibold uppercase tracking-[0.18em] text-sono-darkGrey reveal show">Pioneering dealerships trust Sono</p>
+        <div class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="rail-card h-24 rounded-2xl border border-sono-lightGrey/80 bg-white flex items-center justify-center p-4"><img src="img/img-003.png" alt="Autocare Center logo" class="max-h-16 w-auto"></div>
+          <div class="rail-card h-24 rounded-2xl border border-sono-lightGrey/80 bg-white flex items-center justify-center p-4"><img src="img/img-001.png" alt="Autofit logo" class="max-h-16 w-auto"></div>
+          <div class="rail-card h-24 rounded-2xl border border-sono-lightGrey/80 bg-white flex items-center justify-center p-4"><img src="img/img-002.png" alt="Käyttöauto logo" class="max-h-16 w-auto"></div>
+          <div class="rail-card h-24 rounded-2xl border border-sono-lightGrey/80 bg-white flex items-center justify-center p-4"><img src="img/img-000.png" alt="Fixus logo" class="max-h-16 w-auto"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Platform section -->
+    <section id="platform" class="bg-gray-50 border-b border-sono-lightGrey/70 relative overflow-hidden">
+      <div class="pipe-surface opacity-100">
+        <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <filter id="spark-p" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Route A: Down → 90° right (top-right) -->
+            <path id="plat-p1" data-pipe="8" d="M 1350,-30 V 380 A 50,50 0 0,0 1400,430 H 1650" stroke="#D9D9D9" stroke-width="7"/>
+            <path d="M 1350,-30 V 380 A 50,50 0 0,0 1400,430 H 1650" stroke="#f9fafb" stroke-width="4.5"/>
+            <!-- Route B: Right → 90° down → down → 90° right → right -->
+            <path id="plat-p2" data-pipe="10" d="M -30,350 H 400 A 45,45 0 0,1 445,395 V 650 A 45,45 0 0,0 490,695 H 1650" stroke="#D9D9D9" stroke-width="7"/>
+            <path d="M -30,350 H 400 A 45,45 0 0,1 445,395 V 650 A 45,45 0 0,0 490,695 H 1650" stroke="#f9fafb" stroke-width="4.5"/>
+            <!-- Route C: Down → 90° right (short, center) -->
+            <path id="plat-p3" data-pipe="6" d="M 780,-30 V 80 A 40,40 0 0,0 820,120 H 1650" stroke="#D9D9D9" stroke-width="7"/>
+            <path d="M 780,-30 V 80 A 40,40 0 0,0 820,120 H 1650" stroke="#f9fafb" stroke-width="4.5"/>
+            <!-- Route D: Straight vertical (right edge) -->
+            <path id="plat-p4" data-pipe="7" d="M 1550,-30 V 1040" stroke="#D9D9D9" stroke-width="7"/>
+            <path d="M 1550,-30 V 1040" stroke="#f9fafb" stroke-width="4.5"/>
+            <!-- Route E: Down → 90° right → right → 90° down → down -->
+            <path id="plat-p5" data-pipe="9" d="M 180,-30 V 460 A 50,50 0 0,0 230,510 H 500 A 50,50 0 0,1 550,560 V 1040" stroke="#D9D9D9" stroke-width="7"/>
+            <path d="M 180,-30 V 460 A 50,50 0 0,0 230,510 H 500 A 50,50 0 0,1 550,560 V 1040" stroke="#f9fafb" stroke-width="4.5"/>
+          </g>
+        </svg>
+      </div>
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-20">
+        <div class="grid lg:grid-cols-12 gap-10">
+          <div class="lg:col-span-4 reveal-left show">
+            <h2 class="text-3xl sm:text-4xl font-extrabold leading-tight">Sono automates phone traffic so your shop can focus on the most profitable and urgent customers</h2>
+            <p class="mt-5 text-lg text-sono-darkGrey leading-relaxed">Sono picks up 24/7, handles basic customer service, or forwards the call to the right person.</p>
+            <p class="mt-3 text-lg text-sono-darkGrey leading-relaxed">The AI gathers required details and creates ready-made appointments, integrating natively into your current systems.</p>
+          </div>
+
+          <div class="lg:col-span-8 grid sm:grid-cols-2 gap-4">
+            <article class="rounded-2xl border border-sono-lightGrey/60 bg-white p-6 shadow-soft tile reveal show d1">
+              <div class="tile-icon w-11 h-11 mb-4 text-sono-darkGrey transition-colors duration-300">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+              </div>
+              <h3 class="text-lg font-bold">Answer every call no matter the volume</h3>
+              <p class="mt-2 text-sm text-sono-darkGrey leading-relaxed">Answer questions, take callback requests, and escalate customers to the right humans when needed.</p>
+            </article>
+            <article class="rounded-2xl border border-sono-lightGrey/60 bg-white p-6 shadow-soft tile reveal show d2">
+              <div class="tile-icon w-11 h-11 mb-4 text-sono-darkGrey transition-colors duration-300">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+              </div>
+              <h3 class="text-lg font-bold">Automate appointment bookings</h3>
+              <p class="mt-2 text-sm text-sono-darkGrey leading-relaxed">Capture license plates, mileage, and details, then create ready appointments directly in your DMS.</p>
+            </article>
+            <article class="rounded-2xl border border-sono-lightGrey/60 bg-white p-6 shadow-soft tile reveal show d2">
+              <div class="tile-icon w-11 h-11 mb-4 text-sono-darkGrey transition-colors duration-300">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+              </div>
+              <h3 class="text-lg font-bold">Route calls to the right team</h3>
+              <p class="mt-2 text-sm text-sono-darkGrey leading-relaxed">Direct callers to the correct advisor automatically without clunky number-based menus from the 80s.</p>
+            </article>
+            <article class="rounded-2xl border border-sono-lightGrey/60 bg-white p-6 shadow-soft tile reveal show d3">
+              <div class="tile-icon w-11 h-11 mb-4 text-sono-darkGrey transition-colors duration-300">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="0.5" fill="currentColor"/><circle cx="12" cy="10" r="0.5" fill="currentColor"/><circle cx="15" cy="10" r="0.5" fill="currentColor"/></svg>
+              </div>
+              <h3 class="text-lg font-bold">Frontline customer service</h3>
+              <p class="mt-2 text-sm text-sono-darkGrey leading-relaxed">Book body repair jobs automatically 24/7 and give customers immediate help around the clock.</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="mt-10 grid lg:grid-cols-2 gap-4">
+          <div class="rounded-2xl border border-sono-lightGrey/60 bg-white p-6 reveal show d1">
+            <p class="text-xs uppercase tracking-[0.12em] font-semibold text-sono-darkGrey">Voice-driven call routing</p>
+            <div class="mt-3 rounded-xl border border-sono-lightGrey/70 bg-gray-50 p-4">
+              <p class="font-semibold text-sono-darkGrey text-sm">Customer:</p>
+              <p>Can I speak with the BMW passenger-car service team?</p>
+              <p class="mt-3 font-semibold text-sono-darkGrey text-sm">Sono:</p>
+              <p>Of course! I will connect you right away. Please hold the line.</p>
+            </div>
+          </div>
+          <div class="rounded-2xl border border-sono-lightGrey/60 bg-white p-6 reveal show d2">
+            <p class="text-xs uppercase tracking-[0.12em] font-semibold text-sono-darkGrey">Automated maintenance bookings</p>
+            <div class="mt-3 rounded-xl border border-sono-lightGrey/70 bg-gray-50 p-4 space-y-1">
+              <p><span class="font-semibold text-sono-darkGrey text-sm">Customer:</span> James Carter</p>
+              <p><span class="font-semibold text-sono-darkGrey text-sm">Service:</span> Scheduled maintenance service</p>
+              <p><span class="font-semibold text-sono-darkGrey text-sm">Date/Time:</span> Thu 25 Nov · 08:30</p>
+              <p><span class="font-semibold text-sono-darkGrey text-sm">Status:</span> Confirmed</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ section -->
+    <section id="faq" class="bg-gray-50 border-b border-sono-lightGrey/70 relative grain">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-20 relative z-10">
+        <h2 class="text-3xl sm:text-4xl font-extrabold reveal show">Frequently Asked Questions</h2>
+        <p class="mt-4 text-lg text-sono-darkGrey reveal show d1">Answers for auto repair shops, wash bays, and dealers adopting Sono.</p>
+
+        <div class="mt-10 space-y-4">
+          <details class="rounded-2xl border border-sono-lightGrey/80 bg-white p-5 reveal show d1 group" open>
+            <summary class="cursor-pointer text-lg font-extrabold relative pr-8">How does Sono help a car dealership?</summary>
+            <div class="faq-body">
+              <div>
+                <p class="mt-3 text-sono-darkGrey">Sono acts as an AI service advisor for auto repair shops and dealerships. She answers calls you miss, speaks naturally about maintenance or collision work, captures license plates and symptoms, and either books the job or logs a callback with full context.</p>
+              </div>
+            </div>
+          </details>
+          <details class="rounded-2xl border border-sono-lightGrey/80 bg-white p-5 reveal show d1 group">
+            <summary class="cursor-pointer text-lg font-extrabold relative pr-8">What do I need to launch Sono in my workshop?</summary>
+            <div class="faq-body">
+              <div>
+                <p class="mt-3 text-sono-darkGrey">You can launch Sono in under two days: we train Sono on your service menu, pricing, and workshop capacity; we can sync key details from your website or DMS so she speaks your language; and you forward unanswered calls or use conditional forwarding following our 2-minute guide.</p>
+              </div>
+            </div>
+          </details>
+          <details class="rounded-2xl border border-sono-lightGrey/80 bg-white p-5 reveal show d2 group">
+            <summary class="cursor-pointer text-lg font-extrabold relative pr-8">Can my advisors still answer calls themselves?</summary>
+            <div class="faq-body">
+              <div>
+                <p class="mt-3 text-sono-darkGrey">Yes. Sono only answers when your advisors or receptionists cannot pick up. If someone is available, the call routes to them first. You control the forwarding rules and can pause Sono whenever needed.</p>
+              </div>
+            </div>
+          </details>
+          <details class="rounded-2xl border border-sono-lightGrey/80 bg-white p-5 reveal show d2 group">
+            <summary class="cursor-pointer text-lg font-extrabold relative pr-8">Does Sono book repairs or just collect requests?</summary>
+            <div class="faq-body">
+              <div>
+                <p class="mt-3 text-sono-darkGrey">You decide the workflow. Most workshops begin with Sono collecting detailed maintenance or repair requests so advisors can confirm them later. We can also enable direct scheduling so Sono books bays, courtesy cars, and technician types in real time.</p>
+              </div>
+            </div>
+          </details>
+          <details class="rounded-2xl border border-sono-lightGrey/80 bg-white p-5 reveal show d3 group">
+            <summary class="cursor-pointer text-lg font-extrabold relative pr-8">How are call minutes counted for service calls?</summary>
+            <div class="faq-body">
+              <div>
+                <p class="mt-3 text-sono-darkGrey">Only the time Sono spends speaking with your customer counts toward the included minutes. If the caller hangs up quickly or your advisor takes over, those seconds are excluded. Minutes accrue per second.</p>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact section: White CTA panel per brandbook (black never for backgrounds) -->
+    <section id="contact" class="bg-white relative grain">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-20 relative z-10">
+        <div class="grid lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-4 relative overflow-hidden rounded-3xl border-t-4 border-t-sono-orange reveal-left show">
+            <div class="absolute inset-0">
+              <img src="brandbook-images/image-91-4096x3112.png" alt="" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-[#0E0E0E]/75"></div>
+            </div>
+            <div class="relative z-10 p-8">
+              <p class="text-xs uppercase tracking-[0.16em] text-gray-300">Stop losing customers to missed calls</p>
+              <h2 class="mt-4 text-3xl font-extrabold text-white">Get started with Sono!</h2>
+              <p class="mt-4 text-gray-300">Let Sono automate your phone operations and gain dozens of extra appointments every month.</p>
+              <div class="mt-8 space-y-3 text-sm">
+              <p><span class="text-gray-400">Email:</span> <a href="mailto:info@callsono.ai" class="text-sono-orange hover:underline font-semibold">info@callsono.ai</a></p>
+              <p><span class="text-gray-400">Phone:</span> <a href="tel:+358451341437" class="text-sono-orange hover:underline font-semibold">+358 45 134 1437</a></p>
+              <p class="text-gray-400">We'll be in touch soon and help you onboard Sono.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-8 rounded-3xl border border-sono-lightGrey/80 bg-white p-8 shadow-surface reveal show d1">
+            <form action="/api/submit-form" method="post" class="space-y-4">
+              <input type="hidden" name="source" value="main-contact-form">
+              <div>
+                <label for="name" class="block text-sm font-semibold mb-1.5">Name *</label>
+                <input id="name" name="name" type="text" required class="w-full rounded-xl border border-sono-lightGrey px-4 py-3 transition-all duration-200" placeholder="Name *">
+              </div>
+              <div>
+                <label for="phone" class="block text-sm font-semibold mb-1.5">Phone number *</label>
+                <input id="phone" name="phone" type="tel" required class="w-full rounded-xl border border-sono-lightGrey px-4 py-3 transition-all duration-200" placeholder="Phone number *">
+              </div>
+              <div>
+                <label for="email" class="block text-sm font-semibold mb-1.5">Email *</label>
+                <input id="email" name="email" type="email" required class="w-full rounded-xl border border-sono-lightGrey px-4 py-3 transition-all duration-200" placeholder="Email *">
+              </div>
+              <button type="submit" class="w-full sm:w-auto rounded-xl bg-sono-orange px-7 py-3.5 text-white font-bold hover:bg-sono-orangeDark transition-colors">Send Message</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-sono-lightGrey/70 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <img src="img/sono-logo-solid.png" alt="sono logo" class="h-4 w-auto object-contain">
+      <nav class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-semibold text-sono-darkGrey">
+        <a href="#home" class="hover:text-sono-orange transition-colors">Home</a>
+        <a href="#faq" class="hover:text-sono-orange transition-colors">Frequently Asked Questions</a>
+        <a href="#contact" class="hover:text-sono-orange transition-colors">Contact</a>
+        <a href="https://www.callsono.ai/privacy" class="hover:text-sono-orange transition-colors">Privacy Policy</a>
+        <a href="https://www.facebook.com/profile.php?id=61574237360361" class="hover:text-sono-orange transition-colors">Facebook</a>
+        <a href="https://www.instagram.com/sointu.ai/" class="hover:text-sono-orange transition-colors">Instagram</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (menuBtn && mobileMenu) {
+      menuBtn.addEventListener('click', () => {
+        const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+        menuBtn.setAttribute('aria-expanded', String(!expanded));
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+
+    // Reveal on scroll
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.14 });
+    document.querySelectorAll('.reveal:not(.show), .reveal-left:not(.show), .reveal-scale:not(.show)').forEach((el) => io.observe(el));
+
+    // FAQ accordion with smooth open/close transitions
+    const faqItems = document.querySelectorAll('#faq details');
+    faqItems.forEach(d => { if (d.hasAttribute('open')) d.classList.add('faq-open'); });
+
+    function openFaq(el) {
+      el.setAttribute('open', '');
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('faq-open')));
+    }
+
+    function closeFaq(el) {
+      el.classList.remove('faq-open');
+      const body = el.querySelector('.faq-body');
+      function done() { el.removeAttribute('open'); body.removeEventListener('transitionend', done); }
+      body.addEventListener('transitionend', done, { once: true });
+      setTimeout(() => { if (el.hasAttribute('open') && !el.classList.contains('faq-open')) el.removeAttribute('open'); }, 550);
+    }
+
+    faqItems.forEach(detail => {
+      detail.querySelector('summary').addEventListener('click', e => {
+        e.preventDefault();
+        if (detail.classList.contains('faq-open')) {
+          closeFaq(detail);
+        } else {
+          faqItems.forEach(other => { if (other !== detail && other.classList.contains('faq-open')) closeFaq(other); });
+          openFaq(detail);
+        }
+      });
+    });
+
+    // Animated pipe sparks: head dot with continuous fading trail
+    document.querySelectorAll('path[data-pipe]').forEach(pathEl => {
+      const svg = pathEl.closest('svg');
+      const totalLen = pathEl.getTotalLength();
+      const dur = parseFloat(pathEl.dataset.pipe) * 1000;
+      const filterId = svg.querySelector('filter')?.id || '';
+      const TRAIL_LEN = 80;
+      const SEGS = 24;
+
+      // Head dot with subtle glow
+      const head = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      head.setAttribute('r', 4);
+      head.setAttribute('fill', '#FF3F02');
+      head.setAttribute('opacity', '0');
+      if (filterId) head.setAttribute('filter', 'url(#' + filterId + ')');
+      svg.appendChild(head);
+
+      // Continuous trail: line segments with tapering width and fading opacity
+      const trail = [];
+      for (let i = 0; i < SEGS; i++) {
+        const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        ln.setAttribute('stroke', '#FF3F02');
+        ln.setAttribute('stroke-linecap', 'butt');
+        ln.setAttribute('opacity', '0');
+        svg.appendChild(ln);
+        trail.push(ln);
+      }
+
+      const t0 = performance.now() - dur * Math.random();
+
+      (function tick(now) {
+        const frac = ((now - t0) % dur) / dur;
+        const hd = frac * totalLen;
+
+        // Position head
+        const hp = pathEl.getPointAtLength(hd);
+        head.setAttribute('cx', hp.x);
+        head.setAttribute('cy', hp.y);
+        head.setAttribute('opacity', '0.8');
+
+        // Position trail segments
+        for (let i = 0; i < SEGS; i++) {
+          const d1 = hd - TRAIL_LEN * Math.pow(i / SEGS, 0.75);
+          const d2 = hd - TRAIL_LEN * Math.pow((i + 1) / SEGS, 0.75);
+          if (d2 < 0 || d1 > totalLen) {
+            trail[i].setAttribute('opacity', '0');
+            continue;
+          }
+          const p1 = pathEl.getPointAtLength(Math.min(totalLen, Math.max(0, d1)));
+          const p2 = pathEl.getPointAtLength(Math.min(totalLen, Math.max(0, d2)));
+          const t = 1 - (i + 0.5) / SEGS;
+          trail[i].setAttribute('x1', p1.x);
+          trail[i].setAttribute('y1', p1.y);
+          trail[i].setAttribute('x2', p2.x);
+          trail[i].setAttribute('y2', p2.y);
+          trail[i].setAttribute('stroke-width', (3.5 * t + 0.5).toFixed(1));
+          trail[i].setAttribute('opacity', (0.65 * t).toFixed(3));
+        }
+
+        requestAnimationFrame(tick);
+      })(performance.now());
+    });
+  </script>
+</body>
+</html>
